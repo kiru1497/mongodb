@@ -22,6 +22,15 @@ class User {
           );
       });
   }
+
+  // CLEAR CART
+  static clearCart(userId) {
+    const db = getDb();
+
+    return db
+      .collection("users")
+      .updateOne({ _id: new ObjectId(userId) }, { $set: { "cart.items": [] } });
+  }
 }
 
 module.exports = User;
