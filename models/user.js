@@ -1,46 +1,35 @@
-const { getDb } = require("../utils/db");
-const { ObjectId } = require("mongodb");
+const mongoose = require("mongoose");
 
-class User {
-  constructor(name, email) {
-    this.name = name;
-    this.email = email;
-  }
+const Schema = mongoose.Schema;
 
-  // CREATE
-  save() {
-    const db = getDb();
-    return db.collection("users").insertOne(this);
-  }
+const userSchema = new Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+  },
 
-  // READ (all)
-  static fetchAll() {
-    const db = getDb();
-    return db.collection("users").find().toArray();
-  }
+  // 🛒 Embedded cart (NoSQL way)
+  cart: {
+    items: [
+      {
+        productId: {
+          type: Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+        },
+      },
+    ],
+  },
+});
 
-  // READ (by ID)
-  static findById(userId) {
-    const db = getDb();
-    return db
-      .collection("users")
-      .find({ _id: new ObjectId(userId) })
-      .next();
-  }
+userSchema.methods.addToCart = function () {};
 
-  // UPDATE
-  static updateById(userId, updatedData) {
-    const db = getDb();
-    return db
-      .collection("users")
-      .updateOne({ _id: new ObjectId(userId) }, { $set: updatedData });
-  }
-
-  // DELETE
-  static deleteById(userId) {
-    const db = getDb();
-    return db.collection("users").deleteOne({ _id: new ObjectId(userId) });
-  }
-}
-
-module.exports = User;
+module.exports = mongoose.model("User", userSchema);

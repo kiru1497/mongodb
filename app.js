@@ -1,18 +1,20 @@
 const express = require("express");
+const mongoose = require("mongoose");
 
-const { mongoConnect } = require("./utils/db");
-const userRoutes = require("./routes/userRoutes");
-const cartRoutes = require("./routes/cartRoutes");
-const orderRoutes = require("./routes/orderRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use(userRoutes);
-app.use(cartRoutes);
-app.use(orderRoutes);
+// Prefix all admin routes
+app.use("/admin", adminRoutes);
 
-mongoConnect(() => {
-  app.listen(3000);
-});
+mongoose
+  .connect("mongodb://127.0.0.1:27017/kirandb")
+  .then(() => {
+    console.log("Connected to DB");
+    app.listen(3000);
+  })
+  .catch((err) => console.log(err));
